@@ -68,10 +68,10 @@ console.log("📂 distPath:", distPath);
 app.use(express.static(distPath));
 console.log("✅ Serving static files from:", distPath);
 
-// Catch-all route to serve index.html for client-side routing
-app.get("*", (req, res) => {
+// Catch-all handler for client-side routing - must be last!
+app.use((req, res) => {
   const indexPath = path.join(distPath, "index.html");
-  console.log("📄 Attempting to serve index.html from:", indexPath);
+  console.log("📄 Serving index.html for:", req.url);
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error("❌ Error serving index.html:", err);
