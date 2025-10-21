@@ -22,9 +22,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // ✅ Middleware
+const allowedOrigins = process.env.NODE_ENV === "production" 
+  ? [process.env.CLIENT_URL || "https://e-commerce-4-ogqr.onrender.com"]
+  : ["http://localhost:5173", "http://localhost:5174"];
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -55,12 +59,15 @@ console.log("✅ Analytics routes mounted");
 
 // ✅ Serve frontend build in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/vite-project/dist")));
+  const distPath = path.join(__dirname, "../frontend/vite-project/dist");
+  
+  app.use(express.static(distPath));
+  console.log("✅ Serving static files from:", distPath);
 
   app.get("/*", (req, res) => {
-    res.sendFile(
-      path.resolve(__dirname, "../frontend/vite-project/dist/index.html")
-    );
+    const indexPath = path.join(distPath, "index.html");
+    console.log("✅ Serving index.html from:", indexPath);
+    res.sendFile(indexPath);
   });
 }
 
