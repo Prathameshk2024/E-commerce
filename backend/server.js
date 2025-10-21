@@ -61,13 +61,21 @@ console.log("✅ Analytics routes mounted");
 if (process.env.NODE_ENV === "production") {
   const distPath = path.join(__dirname, "../frontend/vite-project/dist");
   
+  console.log("📂 __dirname:", __dirname);
+  console.log("📂 distPath:", distPath);
+  
   app.use(express.static(distPath));
   console.log("✅ Serving static files from:", distPath);
 
   app.get("/*", (req, res) => {
     const indexPath = path.join(distPath, "index.html");
-    console.log("✅ Serving index.html from:", indexPath);
-    res.sendFile(indexPath);
+    console.log("📄 Attempting to serve index.html from:", indexPath);
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error("❌ Error serving index.html:", err);
+        res.status(404).send("Frontend not found. Make sure build was successful.");
+      }
+    });
   });
 }
 
