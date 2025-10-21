@@ -57,27 +57,32 @@ console.log("✅ Payment routes mounted");
 app.use("/api/analytics", analyticsRoutes);
 console.log("✅ Analytics routes mounted");
 
-// ✅ Serve frontend build in production
-if (process.env.NODE_ENV === "production") {
-  const distPath = path.join(__dirname, "../frontend/vite-project/dist");
-  
-  console.log("📂 __dirname:", __dirname);
-  console.log("📂 distPath:", distPath);
-  
-  app.use(express.static(distPath));
-  console.log("✅ Serving static files from:", distPath);
+// ✅ Serve frontend build
+const distPath = path.join(__dirname, "../frontend/vite-project/dist");
 
-  app.get("/*", (req, res) => {
-    const indexPath = path.join(distPath, "index.html");
-    console.log("📄 Attempting to serve index.html from:", indexPath);
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        console.error("❌ Error serving index.html:", err);
-        res.status(404).send("Frontend not found. Make sure build was successful.");
-      }
-    });
+console.log("📂 Environment:", process.env.NODE_ENV);
+console.log("📂 __dirname:", __dirname);
+console.log("📂 distPath:", distPath);
+
+// Serve static files
+app.use(express.static(distPath));
+console.log("✅ Serving static files from:", distPath);
+
+// Catch-all route to serve index.html for client-side routing
+app.get("*", (req, res) => {
+  const indexPath = path.join(distPath, "index.html");
+  console.log("📄 Attempting to serve index.html from:", indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error("❌ Error serving index.html:", err);
+      res.status(500).json({ 
+        error: "Frontend not found",
+        message: "Make sure the build was successful and dist folder exists",
+        path: indexPath 
+      });
+    }
   });
-}
+});
 
 const PORT = process.env.PORT || 5000;
 
