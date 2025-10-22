@@ -41,7 +41,7 @@ export const signup =async (req,res)=>{
          if(userExists){
         return res.status(404).json({message : "User already exists"}); 
     }
-    const user= await User.create({name,email,password,role:"admin"});
+    const user= await User.create({name,email,password});
 
     //Authentication
     
